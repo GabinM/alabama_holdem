@@ -21,6 +21,12 @@ class Card {
   final Rank rank;
   Card(this.suit, this.rank);
   String toString() => '${rank.name.toUpperCase()} de ${suit.name}';
+  hasSameSuit(Card c){
+    return c.suit == this.suit;
+  }
+  hasSameRank(Card c){
+    return c.rank == this.rank;
+  }
 }
 
 class Deck {
