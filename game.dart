@@ -21,10 +21,10 @@ class Card {
   final Rank rank;
   Card(this.suit, this.rank);
   String toString() => '${rank.name.toUpperCase()} de ${suit.name}';
-  hasSameSuit(Card c){
+  bool hasSameSuit(Card c){
     return c.suit == this.suit;
   }
-  hasSameRank(Card c){
+  bool hasSameRank(Card c){
     return c.rank == this.rank;
   }
 }
@@ -48,10 +48,10 @@ class Player {
   List<Card> hand = [];
   bool folded = false;
   Player(this.name, {this.chips = 1000});
-  addCard(Card c){
+  void addCard(Card c){
     this.hand.add(c);
   }
-  resetHand(){
+  void resetHand(){
     this.hand.clear();
   }
 }
@@ -59,9 +59,18 @@ class Player {
 class PokerGame {
   final Deck deck = Deck();
   final List<Player> players;
+  List<Card> board = <Card>[];
   int pot = 0;
   PokerGame(this.players) {
     deck.shuffle();
+  }
+
+  void addCardToBoard(Card c){
+    this.board.add(c);
+  }
+
+  void clearBoard(){
+    this.board.clear();
   }
 
   void dealHands() {
