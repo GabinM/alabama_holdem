@@ -42,6 +42,12 @@ class Player {
   List<Card> hand = [];
   bool folded = false;
   Player(this.name, {this.chips = 1000});
+  addCard(Card c){
+    this.hand.add(c);
+  }
+  resetHand(){
+    this.hand.clear();
+  }
 }
 
 class PokerGame {
@@ -54,7 +60,8 @@ class PokerGame {
 
   void dealHands() {
     for (var p in players) {
-      p.hand = [deck.draw(), deck.draw()];
+      p.addCard(deck.draw());
+      p.addCard(deck.draw());
     }
   }
 
