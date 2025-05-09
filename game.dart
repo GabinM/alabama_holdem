@@ -1,3 +1,5 @@
+import 'dart:io';
+
 enum Suit { hearts, diamonds, clubs, spades }
 
 enum Rank {
@@ -60,11 +62,65 @@ class PokerGame {
 
   void playClosedPoker() {
     // 1. dealHands()
-    // 2. un seul tour d’enchères
+    // 2. un seul tour d'enchères
     // 3. show down → evaluateHands()
   }
 
   void evaluateHands() {
     // Appeler HandEvaluator sur chaque main
+  }
+}
+
+class GameMenu {
+  void displayMenu() {
+    print('\n=== ALABAMA HOLDEM POKER ===');
+    print('1. Nouvelle partie');
+    print('2. Règles du jeu');
+    print('3. Quitter');
+    print('\nVotre choix : ');
+  }
+
+  void showRules() {
+    print('\n=== RÈGLES DU JEU ===');
+    print('Le Alabama Holdem est une variante du poker où :');
+    print('- Chaque joueur reçoit 2 cartes');
+    print('- Les enchères se font en un seul tour');
+    print('- La meilleure main gagne le pot');
+    print('\nAppuyez sur Entrée pour revenir au menu...');
+    stdin.readLineSync();
+  }
+
+  void startGame() {
+    // TODO: Lancement du jeu
+  }
+}
+
+void main() {
+  GameMenu menu = GameMenu();
+  bool running = true;
+
+  while (running) {
+    menu.displayMenu();
+    String? input = stdin.readLineSync();
+    
+    if (input == null) {
+      print('\nErreur de saisie. Veuillez réessayer.');
+      continue;
+    }
+
+    switch (input) {
+      case '1':
+        menu.startGame();
+        break;
+      case '2':
+        menu.showRules();
+        break;
+      case '3':
+        running = false;
+        print('\nMerci d\'avoir joué !');
+        break;
+      default:
+        print('\nChoix invalide. Veuillez réessayer.');
+    }
   }
 }
