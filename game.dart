@@ -113,7 +113,16 @@ class GameMenu {
   }
 
   void startGame() {
-    // TODO: Lancement du jeu
+    print("combien de joueurs ? : ");
+    int? playerNb = int.parse(stdin.readLineSync() ?? "2" );
+    print("combien de jetons de départ ? (1000 par défaut) : ");
+    int? chipsPerPlayer = int.parse(stdin.readLineSync()?? "1000");
+    List<Player> players = <Player>[];
+    for(int i = 1; i < playerNb+1; i++){
+      print("quel nom pour le joueur n°${i} ? : ");
+      players.add(new Player(stdin.readLineSync()?? "anonyme ${i}", chips : chipsPerPlayer));
+    }
+    PokerGame game = new PokerGame(players);
   }
 }
 
