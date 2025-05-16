@@ -76,6 +76,7 @@ class Player {
   List<Card> hand = [];
   bool folded = false;
   bool hasActed = false;
+  int totalBet = 0;
   int lastBet = 0;
 
   Player(this.name, {this.chips = 1000});
@@ -120,8 +121,9 @@ class PokerGame {
 
   void dealHands() {
     for (var p in players) {
-      p.addCard(deck.draw());
-      p.addCard(deck.draw());
+      for (int i=0; i<5; i++) {
+        p.addCard(deck.draw());
+      }
     }
   }
 
@@ -139,7 +141,9 @@ class PokerGame {
       if (!p.folded) {
         _askAction(p);
         p.hasActed = true;
-        toAct--;
+        if (players.where((p) => p.totalBet==currentBet && p.hasActed).length == players.where((p) => !p.folded).length) {
+          toAct = 0;
+        }
       }
       idx = (idx + 1) % players.length;
     }
@@ -148,9 +152,12 @@ class PokerGame {
   }
 
   void _askAction(Player p) {
+    print('\x1B[2J\x1B[0;0H');
     print(
       '\nTour de ${p.name}  |  Mise courante = $currentBet  |  Jetons = ${p.chips}',
     );
+    print("Appuyez pour afficher la main");
+    stdin.readLineSync();
     String rangMain1 = p.hand[0].toString();
     rangMain1 = rangMain1.substring(0, rangMain1.length - 1);
     if (rangMain1.length == 1) {
@@ -161,16 +168,29 @@ class PokerGame {
     if (rangMain2.length == 1) {
       rangMain2 += " ";
     }
+    String rangMain3 = p.hand[2].toString();
+    rangMain3 = rangMain3.substring(0, rangMain3.length - 1);
+    if (rangMain3.length == 1) {
+      rangMain3 += " ";
+    }
+    String rangMain4 = p.hand[3].toString();
+    rangMain4 = rangMain4.substring(0, rangMain4.length - 1);
+    if (rangMain4.length == 1) {
+      rangMain4 += " ";
+    }
+    String rangMain5 = p.hand[4].toString();
+    rangMain5 = rangMain5.substring(0, rangMain5.length - 1);
+    if (rangMain5.length == 1) {
+      rangMain5 += " ";
+    }
     print("======= VOTRE MAIN ======\n");
-    print(".---------.   .---------.");
-    print("|      ${rangMain1} |   |      ${rangMain2} |");
-    print("|         |   |         |");
-    print(
-      "|    ${p.hand[0].toString()[p.hand[0].toString().length - 1]}    |   |    ${p.hand[1].toString()[p.hand[1].toString().length - 1]}    |",
-    );
-    print("|         |   |         |");
-    print("| ${rangMain1}      |   | ${rangMain2}      |");
-    print("._________.   ._________.");
+    print(".---------.   .---------.   .---------.   .---------.   .---------.");    
+    print("|      ${rangMain1} |   |      ${rangMain2} |   |      ${rangMain3} |   |      ${rangMain4} |   |      ${rangMain5} |");
+    print("|         |   |         |   |         |   |         |   |         |");
+    print("|    ${p.hand[0].toString()[p.hand[0].toString().length - 1]}    |   |    ${p.hand[1].toString()[p.hand[1].toString().length - 1]}    |   |    ${p.hand[2].toString()[p.hand[2].toString().length - 1]}    |   |    ${p.hand[3].toString()[p.hand[3].toString().length - 1]}    |   |    ${p.hand[4].toString()[p.hand[4].toString().length - 1]}    |",);
+    print("|         |   |         |   |         |   |         |   |         |");
+    print("| ${rangMain1}      |   | ${rangMain2}      |   | ${rangMain3}      |   | ${rangMain4}      |   | ${rangMain5}      |");
+    print("._________.   ._________.   ._________.   ._________.   ._________.");
     print("");
     print('1) Fold   2) Call $currentBet   3) Raise   4) All-in');
     final choice = int.tryParse(stdin.readLineSync()!) ?? 0;
@@ -208,7 +228,7 @@ class PokerGame {
     for (var p in alive) {
       final score = evaluateHand(p.hand);
       scores[p] = score;
-      print('${p.name} : ${p.hand[0]}, ${p.hand[1]} → score = $score');
+      print('${p.name} : ${p.hand[0]}, ${p.hand[1]}, ${p.hand[2]}, ${p.hand[3]}, ${p.hand[4]} → score = $score');
     }
 
     final validScores = scores.entries;
@@ -237,6 +257,7 @@ class PokerGame {
       p.chips -= toPay;
       pot += toPay;
       p.lastBet = amount;
+      p.totalBet += amount;
       print('${p.name} suit ($amount).');
     } else {
       print('${p.name} n’a pas assez de jetons pour suivre, il se couche.');
@@ -250,6 +271,7 @@ class PokerGame {
       p.chips -= toPay;
       pot += toPay;
       p.lastBet = amount;
+      p.totalBet += amount;
       print('${p.name} relance à $amount.');
     } else {
       print('${p.name} n’a pas assez de jetons pour relancer, il se couche.');
@@ -369,6 +391,7 @@ class GameMenu {
 
     stdout.write('Combien de jetons de départ ? (1000 par défaut) : ');
     int chipsPerPlayer;
+
     try {
       chipsPerPlayer = int.parse(stdin.readLineSync() ?? '1000');
     } catch (e) {
