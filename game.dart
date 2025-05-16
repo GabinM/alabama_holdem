@@ -55,7 +55,6 @@ class Card {
   int get rankValue => rank.index + 2;
 }
 
-
 class Deck {
   final List<Card> cards = [];
 
@@ -152,7 +151,27 @@ class PokerGame {
     print(
       '\nTour de ${p.name}  |  Mise courante = $currentBet  |  Jetons = ${p.chips}',
     );
-    print('Votre main : ${p.hand[0]}, ${p.hand[1]}');
+    String rangMain1 = p.hand[0].toString();
+    rangMain1 = rangMain1.substring(0, rangMain1.length - 1);
+    if (rangMain1.length == 1) {
+      rangMain1 += " ";
+    }
+    String rangMain2 = p.hand[1].toString();
+    rangMain2 = rangMain2.substring(0, rangMain2.length - 1);
+    if (rangMain2.length == 1) {
+      rangMain2 += " ";
+    }
+    print("======= VOTRE MAIN ======\n");
+    print(".---------.   .---------.");
+    print("|      ${rangMain1} |   |      ${rangMain2} |");
+    print("|         |   |         |");
+    print(
+      "|    ${p.hand[0].toString()[p.hand[0].toString().length - 1]}    |   |    ${p.hand[1].toString()[p.hand[1].toString().length - 1]}    |",
+    );
+    print("|         |   |         |");
+    print("| ${rangMain1}      |   | ${rangMain2}      |");
+    print("._________.   ._________.");
+    print("");
     print('1) Fold   2) Call $currentBet   3) Raise   4) All-in');
     final choice = int.tryParse(stdin.readLineSync()!) ?? 0;
 
