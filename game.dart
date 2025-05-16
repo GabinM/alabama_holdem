@@ -184,7 +184,7 @@ class PokerGame {
   void showDown() {
     print('\n=== Showdown ===');
     final alive = players.where((p) => !p.folded).toList();
-    final scores = <Player, int>{};
+    final scores = <Player, List<int>>{};
 
     for (var p in alive) {
       final score = evaluateHand(p.hand);
@@ -192,15 +192,17 @@ class PokerGame {
       print('${p.name} : ${p.hand[0]}, ${p.hand[1]} → score = $score');
     }
 
-    final winner =
-        scores.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+    final validScores = scores.entries.where((e) => e.value != null);
+    if (validScores.isEmpty) {
+      print("Erreur : aucune main évaluée.");
+      return;
+    }
+
+    final winner = validScores.reduce((a, b) => compareHandsValue(a.value!, b.value!) ? a : b).key;
+
 
     print('\nLe gagnant est ${winner.name}, il remporte $pot jetons !');
     winner.chips += pot;
-  }
-
-  int evaluateHand(List<Card> hand) {
-    return hand.map((c) => c.rank.index).reduce((a, b) => a > b ? a : b);
   }
 
   void fold(Player p) {
@@ -233,6 +235,77 @@ class PokerGame {
       fold(p);
     }
   }
+
+  List<int> evaluateHand(List<Card> cards) {
+    cards.sort((a, b) => b.rankValue.compareTo(a.rankValue));
+    final values = cards.map((c) => c.rankValue).toList();
+
+    final isFlush = cards.every((c) => c.suit == cards[0].suit);
+    final isStraight = _isStraight(values);
+
+    final rankCounts = <int, int>{};
+    for (var c in cards) {
+      rankCounts[c.rankValue] = (rankCounts[c.rankValue] ?? 0) + 1;
+    }
+
+    final counts = rankCounts.entries.toList()
+      ..sort((a, b) => b.value == a.value
+          ? b.key.compareTo(a.key)
+          : b.value.compareTo(a.value));
+
+    final countValues = counts.map((e) => e.value).toList();
+    final rankValues = counts.map((e) => e.key).toList();
+
+    // Détermine le type de main
+    if (isFlush && isStraight && values.first == 14) {
+      return [9]; // Quinte flush royale
+    } else if (isFlush && isStraight) {
+      return [8, values.first]; // Quinte flush
+    } else if (countValues[0] == 4) {
+      return [7, rankValues[0], rankValues[1]]; // Carré
+    } else if (countValues[0] == 3 && countValues[1] == 2) {
+      return [6, rankValues[0], rankValues[1]]; // Full
+    } else if (isFlush) {
+      return [5, ...values]; // Couleur
+    } else if (isStraight) {
+      return [4, values.first]; // Suite
+    } else if (countValues[0] == 3) {
+      return [3, rankValues[0], ...rankValues.sublist(1)]; // Brelan
+    } else if (countValues[0] == 2 && countValues[1] == 2) {
+      return [2, rankValues[0], rankValues[1], rankValues[2]]; // Double paire
+    } else if (countValues[0] == 2) {
+      return [1, rankValues[0], ...rankValues.sublist(1)]; // Une paire
+    } else {
+      return [0, ...values]; // Carte haute
+    }
+  }
+
+  bool _isStraight(List<int> values) {
+    final unique = values.toSet().toList()..sort((a, b) => b.compareTo(a));
+    if (unique.length < 5) return false;
+
+    for (int i = 0; i <= unique.length - 5; i++) {
+      if (unique[i] - unique[i + 4] == 4) {
+        return true;
+      }
+    }
+
+    // Cas spécial : A-2-3-4-5
+    return unique.contains(14) &&
+          unique.contains(2) &&
+          unique.contains(3) &&
+          unique.contains(4) &&
+          unique.contains(5);
+  }
+
+  bool compareHandsValue(List<int> h1, List<int> h2) {
+    for (int i = 0; i < h1.length && i < h2.length; i++) {
+      if (h1[i] > h2[i]) return true;
+      if (h1[i] < h2[i]) return false;
+    }
+    return true;
+  }
+
 
   void allIn(Player p) {
     final all = p.chips;
