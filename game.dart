@@ -1,7 +1,9 @@
 import 'dart:io';
 
+// Énumération des couleurs de cartes
 enum Suit { coeurs, carreaux, trefles, piques }
 
+// Énumération des valeurs de cartes
 enum Rank {
   deux,
   trois,
@@ -18,11 +20,13 @@ enum Rank {
   as,
 }
 
+// Classe représentant une carte avec sa couleur et sa valeur
 class Card {
   final Suit suit;
   final Rank rank;
   Card(this.suit, this.rank);
 
+  // Convertit la carte en chaîne de caractères (ex: "A♥" pour As de Coeur)
   @override
   String toString() {
     final suitSymbols = {
@@ -49,15 +53,20 @@ class Card {
     return '${rankLabels[rank]}${suitSymbols[suit]}';
   }
 
+  // Vérifie si deux cartes ont la même couleur
   bool hasSameSuit(Card c) => c.suit == suit;
+  // Vérifie si deux cartes ont la même valeur
   bool hasSameRank(Card c) => c.rank == rank;
 
+  // Retourne la valeur numérique de la carte (2-14)
   int get rankValue => rank.index + 2;
 }
 
+// Classe représentant un jeu de 52 cartes
 class Deck {
   final List<Card> cards = [];
 
+  // Initialise un jeu complet de 52 cartes
   Deck() {
     for (var s in Suit.values) {
       for (var r in Rank.values) {
@@ -66,37 +75,44 @@ class Deck {
     }
   }
 
+  // Mélange le jeu de cartes
   void shuffle() => cards.shuffle();
+  // Tire une carte du dessus du jeu
   Card draw() => cards.removeLast();
 }
 
+// Classe représentant un joueur
 class Player {
   final String name;
-  int chips;
-  List<Card> hand = [];
-  bool folded = false;
-  bool hasActed = false;
-  int totalBet = 0;
-  int lastBet = 0;
+  int chips;  // Nombre de jetons du joueur
+  List<Card> hand = [];  // Main du joueur
+  bool folded = false;  // Si le joueur s'est couché
+  bool hasActed = false;  // Si le joueur a déjà agi dans le tour actuel
+  int totalBet = 0;  // Mise totale du joueur dans la main
+  int lastBet = 0;  // Dernière mise du joueur
 
   Player(this.name, {this.chips = 1000});
 
+  // Ajoute une carte à la main du joueur
   void addCard(Card c) => hand.add(c);
+  // Vide la main du joueur
   void resetHand() => hand.clear();
 }
 
+// Classe principale du jeu de poker
 class PokerGame {
   final Deck deck = Deck();
   final List<Player> players;
-  List<Card> board = [];
-  int pot = 0;
-  int currentBet = 0;
-  int dealerIndex = 0;
+  List<Card> board = [];  // Cartes sur la table
+  int pot = 0;  // Pot actuel
+  int currentBet = 0;  // Mise courante
+  int dealerIndex = 0;  // Index du donneur
 
   PokerGame(this.players) {
     deck.shuffle();
   }
 
+  // Joue une main complète de poker fermé
   void playClosedPoker() {
     resetForNewHand();
     dealHands();
@@ -104,6 +120,7 @@ class PokerGame {
     showDown();
   }
 
+  // Réinitialise le jeu pour une nouvelle main
   void resetForNewHand() {
     deck.cards.addAll(board);
     board.clear();
@@ -119,6 +136,7 @@ class PokerGame {
     deck.shuffle();
   }
 
+  // Distribue 5 cartes à chaque joueur
   void dealHands() {
     for (var p in players) {
       for (int i=0; i<5; i++) {
@@ -127,10 +145,13 @@ class PokerGame {
     }
   }
 
+  // Ajoute une carte sur la table
   void addCardToBoard(Card c) => board.add(c);
 
+  // Vide la table
   void clearBoard() => board.clear();
 
+  // Gère un tour d'enchères
   void bettingRound() {
     int idx = (dealerIndex + 1) % players.length;
     int toAct = players.where((p) => !p.folded).length;
@@ -151,6 +172,7 @@ class PokerGame {
     dealerIndex = (dealerIndex + 1) % players.length;
   }
 
+  // Demande une action au joueur (suivre, relancer, se coucher, all-in)
   void _askAction(Player p) {
     print('\x1B[2J\x1B[0;0H');
     print(
@@ -220,6 +242,7 @@ class PokerGame {
     }
   }
 
+  // Évalue les mains et détermine le gagnant
   void showDown() {
     print('\n=== Showdown ===');
     final alive = players.where((p) => !p.folded).toList();
@@ -246,11 +269,13 @@ class PokerGame {
     winner.chips += pot;
   }
 
+  // Le joueur se couche
   void fold(Player p) {
     p.folded = true;
     print('${p.name} se couche.');
   }
 
+  // Le joueur suit la mise courante
   void call(Player p, int amount) {
     final toPay = amount - p.lastBet;
     if (p.chips >= toPay) {
@@ -260,11 +285,12 @@ class PokerGame {
       p.totalBet += amount;
       print('${p.name} suit ($amount).');
     } else {
-      print('${p.name} n’a pas assez de jetons pour suivre, il se couche.');
+      print("${p.name} n'a pas assez de jetons pour suivre, il se couche.");
       fold(p);
     }
   }
 
+  // Le joueur relance
   void raise(Player p, int amount) {
     final toPay = amount - p.lastBet;
     if (p.chips >= toPay) {
@@ -274,11 +300,12 @@ class PokerGame {
       p.totalBet += amount;
       print('${p.name} relance à $amount.');
     } else {
-      print('${p.name} n’a pas assez de jetons pour relancer, il se couche.');
+      print("${p.name} n'a pas assez de jetons pour relancer, il se couche.");
       fold(p);
     }
   }
 
+  // Évalue la force d'une main de poker
   List<int> evaluateHand(List<Card> cards) {
     cards.sort((a, b) => b.rankValue.compareTo(a.rankValue));
     final values = cards.map((c) => c.rankValue).toList();
@@ -326,6 +353,7 @@ class PokerGame {
     }
   }
 
+  // Vérifie si les cartes forment une suite
   bool _isStraight(List<int> values) {
     final unique = values.toSet().toList()..sort((a, b) => b.compareTo(a));
     if (unique.length < 5) return false;
@@ -344,6 +372,7 @@ class PokerGame {
         unique.contains(5);
   }
 
+  // Compare deux mains pour déterminer la plus forte
   bool compareHandsValue(List<int> h1, List<int> h2) {
     for (int i = 0; i < h1.length && i < h2.length; i++) {
       if (h1[i] > h2[i]) return true;
@@ -352,6 +381,7 @@ class PokerGame {
     return true;
   }
 
+  // Le joueur mise tous ses jetons
   void allIn(Player p) {
     final all = p.chips;
     pot += all;
@@ -361,7 +391,9 @@ class PokerGame {
   }
 }
 
+// Classe gérant le menu principal du jeu
 class GameMenu {
+  // Affiche le menu principal
   void displayMenu() {
     print('\n=== ALABAMA HOLDEM POKER ===');
     print('1. Nouvelle partie');
@@ -370,15 +402,17 @@ class GameMenu {
     stdout.write('\nVotre choix : ');
   }
 
+  // Affiche les règles du jeu
   void showRules() {
     print('\n=== RÈGLES DU JEU ===');
     print('- Chaque joueur reçoit 2 cartes');
-    print('- Un seul tour d’enchères');
+    print("- Un seul tour d'enchères");
     print('- La meilleure main gagne le pot');
     stdout.write('\nAppuyez sur Entrée pour revenir au menu...');
     stdin.readLineSync();
   }
 
+  // Démarre une nouvelle partie
   void startGame() {
     stdout.write('Combien de joueurs ? (2 par défaut) : ');
     int playerNb;
@@ -414,6 +448,7 @@ class GameMenu {
   }
 }
 
+// Point d'entrée du programme
 void main() {
   final menu = GameMenu();
   var running = true;
