@@ -211,14 +211,16 @@ class PokerGame {
       print('${p.name} : ${p.hand[0]}, ${p.hand[1]} → score = $score');
     }
 
-    final validScores = scores.entries.where((e) => e.value != null);
+    final validScores = scores.entries;
     if (validScores.isEmpty) {
       print("Erreur : aucune main évaluée.");
       return;
     }
 
-    final winner = validScores.reduce((a, b) => compareHandsValue(a.value!, b.value!) ? a : b).key;
-
+    final winner =
+        validScores
+            .reduce((a, b) => compareHandsValue(a.value, b.value) ? a : b)
+            .key;
 
     print('\nLe gagnant est ${winner.name}, il remporte $pot jetons !');
     winner.chips += pot;
@@ -267,10 +269,13 @@ class PokerGame {
       rankCounts[c.rankValue] = (rankCounts[c.rankValue] ?? 0) + 1;
     }
 
-    final counts = rankCounts.entries.toList()
-      ..sort((a, b) => b.value == a.value
-          ? b.key.compareTo(a.key)
-          : b.value.compareTo(a.value));
+    final counts =
+        rankCounts.entries.toList()..sort(
+          (a, b) =>
+              b.value == a.value
+                  ? b.key.compareTo(a.key)
+                  : b.value.compareTo(a.value),
+        );
 
     final countValues = counts.map((e) => e.value).toList();
     final rankValues = counts.map((e) => e.key).toList();
@@ -311,10 +316,10 @@ class PokerGame {
 
     // Cas spécial : A-2-3-4-5
     return unique.contains(14) &&
-          unique.contains(2) &&
-          unique.contains(3) &&
-          unique.contains(4) &&
-          unique.contains(5);
+        unique.contains(2) &&
+        unique.contains(3) &&
+        unique.contains(4) &&
+        unique.contains(5);
   }
 
   bool compareHandsValue(List<int> h1, List<int> h2) {
@@ -324,7 +329,6 @@ class PokerGame {
     }
     return true;
   }
-
 
   void allIn(Player p) {
     final all = p.chips;
