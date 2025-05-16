@@ -125,10 +125,10 @@ class PokerGame {
 
   void _askAction(Player p) {
     print(
-      '\nTour de ${p.name}  |  Mise courante = \$currentBet  |  Jetons = \${p.chips}',
+      '\nTour de ${p.name}  |  Mise courante = $currentBet  |  Jetons = ${p.chips}',
     );
-    print('Votre main : \${p.hand[0]}, \${p.hand[1]}');
-    print('1) Fold   2) Call \$currentBet   3) Raise   4) All-in');
+    print('Votre main : ${p.hand[0]}, ${p.hand[1]}');
+    print('1) Fold   2) Call $currentBet   3) Raise   4) All-in');
     final choice = int.tryParse(stdin.readLineSync()!) ?? 0;
 
     switch (choice) {
@@ -164,13 +164,13 @@ class PokerGame {
     for (var p in alive) {
       final score = evaluateHand(p.hand);
       scores[p] = score;
-      print('\${p.name} : \${p.hand[0]}, \${p.hand[1]} → score = \$score');
+      print('${p.name} : ${p.hand[0]}, ${p.hand[1]} → score = $score');
     }
 
     final winner =
         scores.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
 
-    print('\nLe gagnant est \${winner.name}, il remporte \$pot jetons !');
+    print('\nLe gagnant est ${winner.name}, il remporte $pot jetons !');
     winner.chips += pot;
   }
 
@@ -180,7 +180,7 @@ class PokerGame {
 
   void fold(Player p) {
     p.folded = true;
-    print('\${p.name} se couche.');
+    print('${p.name} se couche.');
   }
 
   void call(Player p, int amount) {
@@ -189,9 +189,9 @@ class PokerGame {
       p.chips -= toPay;
       pot += toPay;
       p.lastBet = amount;
-      print('\${p.name} suit (\$amount).');
+      print('${p.name} suit ($amount).');
     } else {
-      print('\${p.name} n’a pas assez de jetons pour suivre, il se couche.');
+      print('${p.name} n’a pas assez de jetons pour suivre, il se couche.');
       fold(p);
     }
   }
@@ -202,9 +202,9 @@ class PokerGame {
       p.chips -= toPay;
       pot += toPay;
       p.lastBet = amount;
-      print('\${p.name} relance à \$amount.');
+      print('${p.name} relance à $amount.');
     } else {
-      print('\${p.name} n’a pas assez de jetons pour relancer, il se couche.');
+      print('${p.name} n’a pas assez de jetons pour relancer, il se couche.');
       fold(p);
     }
   }
@@ -214,7 +214,7 @@ class PokerGame {
     pot += all;
     p.lastBet += all;
     p.chips = 0;
-    print('\${p.name} tape all-in (\$all).');
+    print('${p.name} tape all-in ($all).');
   }
 }
 
@@ -257,10 +257,10 @@ class GameMenu {
 
     final players = <Player>[];
     for (var i = 1; i <= playerNb; i++) {
-      stdout.write('Nom du joueur n°\$i : ');
+      stdout.write('Nom du joueur n°$i : ');
       var name = stdin.readLineSync();
       if (name == null || name.trim().isEmpty) {
-        name = 'Anonyme \$i';
+        name = 'Anonyme $i';
       }
       players.add(Player(name, chips: chipsPerPlayer));
     }
