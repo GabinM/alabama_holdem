@@ -21,15 +21,40 @@ enum Rank {
 class Card {
   final Suit suit;
   final Rank rank;
-
   Card(this.suit, this.rank);
 
   @override
-  String toString() => '${rank.name.toUpperCase()} de ${suit.name}';
+  String toString() {
+    final suitSymbols = {
+      Suit.coeurs: '♥',
+      Suit.carreaux: '♦',
+      Suit.trefles: '♣',
+      Suit.piques: '♠',
+    };
+    final rankLabels = {
+      Rank.deux: '2',
+      Rank.trois: '3',
+      Rank.quatre: '4',
+      Rank.cinq: '5',
+      Rank.six: '6',
+      Rank.sept: '7',
+      Rank.huit: '8',
+      Rank.neuf: '9',
+      Rank.dix: '10',
+      Rank.valet: 'J',
+      Rank.dame: 'Q',
+      Rank.roi: 'K',
+      Rank.as: 'A',
+    };
+    return '${rankLabels[rank]}${suitSymbols[suit]}';
+  }
 
   bool hasSameSuit(Card c) => c.suit == suit;
   bool hasSameRank(Card c) => c.rank == rank;
+
+  int get rankValue => rank.index + 2;
 }
+
 
 class Deck {
   final List<Card> cards = [];
