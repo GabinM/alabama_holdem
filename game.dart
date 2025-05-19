@@ -307,19 +307,19 @@ class PokerGame {
 
   // Évalue la force d'une main de poker
   List<int> evaluateHand(List<Card> cards) {
-    cards.sort((a, b) => b.rankValue.compareTo(a.rankValue));
-    final values = cards.map((c) => c.rankValue).toList();
+    cards.sort((a, b) => b.rankValue.compareTo(a.rankValue)); // trie les cartes en fonction de leurs rangs
+    final values = cards.map((c) => c.rankValue).toList(); // crée une liste des rangs des cartes
 
-    final isFlush = cards.every((c) => c.suit == cards[0].suit);
-    final isStraight = _isStraight(values);
+    final isFlush = cards.every((c) => c.suit == cards[0].suit); // vérifie si il y a couleur (regarde si toutes les cartes ont le meme suit)
+    final isStraight = _isStraight(values); // vérifie si les valeurs des rangs des cartes se suivent et forment une suite/straight
 
     final rankCounts = <int, int>{};
-    for (var c in cards) {
+    for (var c in cards) { // détermine quels rangs sont présents
       rankCounts[c.rankValue] = (rankCounts[c.rankValue] ?? 0) + 1;
     }
 
     final counts =
-        rankCounts.entries.toList()..sort(
+        rankCounts.entries.toList()..sort( // .. => permet d'enchainer des appels sur un objet (ici entries)
           (a, b) =>
               b.value == a.value
                   ? b.key.compareTo(a.key)
@@ -329,7 +329,7 @@ class PokerGame {
     final countValues = counts.map((e) => e.value).toList();
     final rankValues = counts.map((e) => e.key).toList();
 
-    // Détermine le type de main
+    // Détermine la meilleure combinaison de la main
     if (isFlush && isStraight && values.first == 14) {
       return [9]; // Quinte flush royale
     } else if (isFlush && isStraight) {
@@ -339,7 +339,7 @@ class PokerGame {
     } else if (countValues[0] == 3 && countValues[1] == 2) {
       return [6, rankValues[0], rankValues[1]]; // Full
     } else if (isFlush) {
-      return [5, ...values]; // Couleur
+      return [5, ...values]; // Couleur -   ... => opérateur qui insère les éléments de la liste values dans la liste retournée
     } else if (isStraight) {
       return [4, values.first]; // Suite
     } else if (countValues[0] == 3) {
@@ -356,9 +356,9 @@ class PokerGame {
   // Vérifie si les cartes forment une suite
   bool _isStraight(List<int> values) {
     final unique = values.toSet().toList()..sort((a, b) => b.compareTo(a));
-    if (unique.length < 5) return false;
+    if (unique.length < 5) return false; // si chaque carte n'est pas unique, il n'y a pas de suite
 
-    for (int i = 0; i <= unique.length - 5; i++) {
+    for (int i = 0; i <= unique.length - 5; i++) { 
       if (unique[i] - unique[i + 4] == 4) {
         return true;
       }
